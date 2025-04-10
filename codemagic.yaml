@@ -1,11 +1,149 @@
 workflows:
   android-workflow:
     name: Android Build
+    instance_type: mac_mini_m1
+    max_build_duration: 60
     environment:
-      android_signing:
-        - name: my-release-key
-          filePath: $CM_KEYSTORE_FILE_PATH  # Path to the keystore file (use an environment variable if needed)
-          keystore_password: $CM_KEYSTORE_PASSWORD  # Encrypted keystore password (use an environment variable)
-          key_alias: $CM_KEY_ALIAS  # Key alias (use an environment variable)
-          key_password: $CM_KEY_PASSWORD  # Key password (use an environment variable)
-          type: secure_environment_variable  # The type expected here is "secure_environment_variable"
+      flutter: stable
+      xcode: latest
+      groups:
+        - google_play
+      vars:
+        PACKAGE_NAME: "com.example.islamic_lifestyle_app"
+        KEYSTORE_PASSWORD: "fmt2000$$"
+        KEY_ALIAS: "my_key_alias"
+        KEY_PASSWORD: "fmt2000$$"
+    scripts:
+      - name: Set up local.properties
+        script: |
+          echo "flutter.sdk=$HOME/programs/flutter" > "$CM_BUILD_DIR/android/local.properties"
+      - name: Copy keystore to project
+        script: |
+          echo "Copying keystore to project directory..."
+          mkdir -p $CM_BUILD_DIR/android/app/keystore
+          cp $FCI_BUILD_DIR/my-release-key.keystore $CM_BUILD_DIR/android/app/keystore/
+          echo "Keystore copied to $CM_BUILD_DIR/android/app/keystore/my-release-key.keystore"
+      - name: Configure Gradle for signing
+        script: |
+          cat >> "$CM_BUILD_DIR/android/app/build.gradle" << EOF
+          
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file('keystore/my-release-key.keystore')
+                      storePassword "$KEYSTORE_PASSWORD"
+                      keyAlias "$KEY_ALIAS"
+                      keyPassword "$KEY_PASSWORD"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+      - name: Flutter test
+        script: |
+          flutter test
+      - name: Build APK
+        script: |
+          flutter build apk --release
+      - name: Build App Bundle
+        script: |
+          flutter build appbundle --release
+    artifacts:
+      - build/**/outputs/apk/**/*.apk
+      - build/**/outputs/bundle/**/*.aab
+      - build/**/outputs/**/mapping.txt
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - user@example.com
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: true
+
+  ios-workflow:
+    name: iOS Build
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    integrations:
+      app_store_connect: codemagic
+    environment:
+      flutter: stable
+      xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.example.islamicLifestyleApp
+      groups:
+        - app_store
+      vars:
+        APP_ID: 1234567890
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+      - name: Flutter test
+        script: |
+          flutter test
+      - name: Install pods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign
+      - name: Build ipa for distribution
+        script: |
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release -archivePath Runner.xcarchive archive
+          xcodebuild -exportArchive -archivePath Runner.xcarchive -exportOptionsPlist exportOptions.plist -exportPath ./build
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+    publishing:
+      email:
+        recipients:
+          - user@example.com
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  web-workflow:
+    name: Web Build
+    instance_type: linux
+    max_build_duration: 30
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Flutter analyze
+        script: |
+          flutter analyze
+      - name: Flutter test
+        script: |
+          flutter test
+      - name: Build Web
+        script: |
+          flutter build web --release
+    artifacts:
+      - build/web/*
+    publishing:
+      email:
+        recipients:
+          - user@example.com
