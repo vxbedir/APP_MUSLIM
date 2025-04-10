@@ -3,11 +3,10 @@ workflows:
     name: Android Build
     environment:
       android_signing:
-        - name: my-release-key
-          filePath: path/to/my-release-key.keystore
+        - keystore: /path/to/my-release-key.keystore
           keystore_password: EncryptedKeystorePassword
-          key_alias: my-key-alias
+          key_alias: my-key-alias  # Use the alias you found
           key_password: EncryptedKeyPassword
-          type: jks  # or 'pkcs12' depending on your keystore type
+          type: jks
           group: com.example
           source: build.gradle
