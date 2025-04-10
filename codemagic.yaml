@@ -25,15 +25,15 @@ workflows:
           echo "Keystore copied to $CM_BUILD_DIR/android/app/keystore/my-release-key.keystore"
       - name: Configure Gradle for signing
         script: |
-          cat >> "$CM_BUILD_DIR/android/app/build.gradle" << EOF
+          cat >> "$CM_BUILD_DIR/android/app/build.gradle" << 'EOF'
           
           android {
               signingConfigs {
                   release {
                       storeFile file('keystore/my-release-key.keystore')
-                      storePassword "$KEYSTORE_PASSWORD"
-                      keyAlias "$KEY_ALIAS"
-                      keyPassword "$KEY_PASSWORD"
+                      storePassword "fmt2000\\$\\$"
+                      keyAlias "my_key_alias"
+                      keyPassword "fmt2000\\$\\$"
                   }
               }
               buildTypes {
