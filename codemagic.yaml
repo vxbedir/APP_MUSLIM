@@ -7,7 +7,11 @@ workflows:
       flutter: stable
       xcode: latest
       android_signing:
-        - keystore_reference
+        - keystores:
+            - name: fmt
+              password: $fmt
+              key_alias: $fmt
+              key_password: fmt2000
       groups:
         - google_play
       vars:
@@ -119,4 +123,4 @@ workflows:
     publishing:
       email:
         recipients:
-          - user@example.com
+          - mbedir.muhebeddin2@gmail.com
