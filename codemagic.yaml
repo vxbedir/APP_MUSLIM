@@ -10,9 +10,9 @@ workflows:
         - google_play
       vars:
         PACKAGE_NAME: "com.example.islamic_lifestyle_app"
-        KEYSTORE_PASSWORD: "fmt2000$$"
+        KEYSTORE_PASSWORD: "fmt2000fmt"
         KEY_ALIAS: "my_key_alias"
-        KEY_PASSWORD: "fmt2000$$"
+        KEY_PASSWORD: "fmt2000fmt"
     scripts:
       - name: Set up local.properties
         script: |
