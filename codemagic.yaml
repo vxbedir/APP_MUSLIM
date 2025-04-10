@@ -8,10 +8,10 @@ workflows:
       xcode: latest
       android_signing:
         - keystores:
-            - name: fmt
-              password: $fmt
-              key_alias: $fmt
-              key_password: fmt2000
+            - name: release-keystore
+              password: $KEYSTORE_PASSWORD
+              key_alias: $KEY_ALIAS
+              key_password: $KEY_PASSWORD
       groups:
         - google_play
       vars:
