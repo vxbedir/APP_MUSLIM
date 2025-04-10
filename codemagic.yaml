@@ -67,10 +67,6 @@ workflows:
       email:
         recipients:
           - user@example.com
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
 
   ios-workflow:
     name: iOS Build
@@ -117,10 +113,6 @@ workflows:
       email:
         recipients:
           - user@example.com
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        submit_to_app_store: false
 
   web-workflow:
     name: Web Build
