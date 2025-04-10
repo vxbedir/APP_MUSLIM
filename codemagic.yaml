@@ -3,10 +3,9 @@ workflows:
     name: Android Build
     environment:
       android_signing:
-        - keystore: /path/to/my-release-key.keystore
-          keystore_password: EncryptedKeystorePassword
-          key_alias: my-key-alias  # Use the alias you found
-          key_password: EncryptedKeyPassword
-          type: jks
-          group: com.example
-          source: build.gradle
+        - name: my-release-key
+          filePath: $CM_KEYSTORE_FILE_PATH  # Path to the keystore file (use an environment variable if needed)
+          keystore_password: $CM_KEYSTORE_PASSWORD  # Encrypted keystore password (use an environment variable)
+          key_alias: $CM_KEY_ALIAS  # Key alias (use an environment variable)
+          key_password: $CM_KEY_PASSWORD  # Key password (use an environment variable)
+          type: secure_environment_variable  # The type expected here is "secure_environment_variable"
